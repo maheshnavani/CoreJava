@@ -1,2 +1,42 @@
 Method #1: In the JVM, every object has a pointer to its class, but only to its concrete class and not to its interface or abstract class. 
-If we get the memory address of an object, we can get the address of its class easily. This method is useful only for classes whose instances can be created. Neither interfaces nor abstract classes can be used in this way. 
+If we get the memory address of an object, we can get the address of its class easily. This method is useful only for classes whose
+instances can be created. Neither interfaces nor abstract classes can be used in this way. 
+
+
+For 32 bit JVM:
+	_mark	: 4 byte constant
+	_klass	: 4 byte pointer to class 
+
+For 64 bit JVM:
+	_mark	: 8 byte constant
+	_klass	: 8 byte pointer to class
+
+For 64 bit JVM with compressed-oops:
+	_mark	: 8 byte constant
+	_klass	: 4 byte pointer to class
+
+
+The second field in the object layout in memory (for a 32-bit JVM, the offset is 4, for a 64-bit JVM offset is 8 from the address of an object in memory) points to the class definition of object in memory. For getting a value at this offset, you can use “sun.misc.Unsafe” class. The SampleClass used here is listed in the section above.
+For 32 bit JVM:
+	SampleClass sampleClassObject = new SampleClass();
+	int addressOfSampleClass = unsafe.getInt(sampleClassObject, 4L);
+
+For 64 bit JVM:
+	SampleClass sampleClassObject = new SampleClass();
+	long addressOfSampleClass = unsafe.getLong(sampleClassObject, 8L);
+
+For 64 bit JVM with compressed-oops:
+	SampleClass sampleClassObject = new SampleClass();
+	long addressOfSampleClass = unsafe.getInt(sampleClassObject, 8L);
+Method #2: With this technique, address of any class (interface, annotation, abstract class, enum) can be found. There memory address of a class definition in Java 7 looks like this: for a 32-bit JVM, 4 bytes from an 80-byte offset, and for a 64-bit JVM, 8 bytes from a 160-byte offset and for a 64-bit JVM with compressed-oops, 4 bytes from 84-byte offset. 
+There aren’t defined offsets, but they are documented in the class file parser as “hidden” fields (there are actually three fields here: class, arrayClass, resolvedConstructor), meaning they just happen to be at that offset, because there are 18 non-static reference-type fields in java.lang.Class. 
+For more information see ClassFileParser::java_lang_Class_fix_pre() and JavaClasses::check_offsets() at http://hg.openjdk.java.net/jdk7/hotspot/hotspot/file/9b0ca45cd756/src/share/vm/classfile/ .
+The code samples to retrieve the addresses are listed here:
+For 32 bit JVM:
+	int addressOfSampleClass = unsafe.getInt(SampleClass.class, 80L);
+
+For 64 bit JVM:
+	long addressOfSampleClass = unsafe.getLong(SampleClass.class, 160L);
+
+For 64 bit JVM with compressed-oops:
+	long addressOfSampleClass = unsafe.getInt(SampleClass.class, 84L);
