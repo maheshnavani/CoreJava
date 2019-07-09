@@ -1,0 +1,2 @@
+Method #1: In the JVM, every object has a pointer to its class, but only to its concrete class and not to its interface or abstract class. 
+If we get the memory address of an object, we can get the address of its class easily. This method is useful only for classes whose instances can be created. Neither interfaces nor abstract classes can be used in this way. 
