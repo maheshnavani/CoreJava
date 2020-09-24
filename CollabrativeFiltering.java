@@ -35,6 +35,8 @@ public class CollabrativeFiltering {
                     if ( productEnums.get(i) > productEnums.get(j)) inversion++;
                 }
             }
+            if ( inversion == 0)
+                continue;
             if (! inversionMap.containsKey(inversion))
                 inversionMap.put(inversion,new ArrayList<>());
             inversionMap.get(inversion).add(set.getKey());
@@ -58,7 +60,9 @@ public class CollabrativeFiltering {
         List<String> users = new ArrayList<>();
         for (Map.Entry<Integer, List<String>> entry : inversionMap.entrySet())
         {
-            users.addAll(Collections.sort(entry.getValue()));
+            List<String> values = entry.getValue();
+            Collections.sort(values);
+            users.addAll(values);
         }
         String str = String.join(",",users);
         System.out.println(str);
