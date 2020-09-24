@@ -1,0 +1,67 @@
+package com.sai.test_spring;
+
+public class Multiply {
+
+    public static String getStr(int[] result) {
+        StringBuffer buffer= new StringBuffer();
+        for (int i = 0; i < result.length; i++) buffer.append(result[i]);
+        return buffer.toString();
+    }
+    public static String multiply(String s1 , String s2) {
+
+        int sign  = 1;
+        if ( s1.charAt(0) == '-') {
+            s1 = s1.substring(1);
+            sign = sign * -1;
+        }
+
+        if ( s2.charAt(0) == '-') {
+            s2 = s2.substring(1);
+            sign = sign * -1;
+        }
+        int result[] = new int [s1.length() + s2.length()];
+        System.out.println("s1.length=" + s1.length() + "|s2.length=" + s2.length());
+        int n2 = 0;
+        for (int i = s2.length() -1 ; i >=0 ;i--) {
+            int carry = 0;
+            int n1 = 0;
+            int d2  = s2.charAt(i)  - '0';
+            for (int j = s1.length() -1 ; j >= 0 ; j--) {
+                int  d1  = s1.charAt(j) - '0';
+
+                int product = (d1 * d2 ) + result[n1 + n2] + carry;
+                carry = product / 10 ;
+
+
+
+                result[n1+n2] =  product % 10;
+                System.out.println("n1="+ n1 + "|n2=" + n2 + "|i=" + i + "|j=" + j + "|s2[i]=" + s2.charAt(i)
+                        + "|s1[j]="+ s1.charAt(j) + "|product=" + product + "|carry=" + carry + "|result=" + getStr(result));
+                n1++;
+
+            }
+            if (carry > 0){
+                result[n1+n2] = carry;
+            }
+            n2++;
+        }
+        StringBuffer buffer = new StringBuffer();
+        for (int i = result.length -1 ; i >=0 ; i--)
+            buffer.append(result[i] );
+
+        return (sign == -1 ? "-" : "") + buffer.toString();
+    }
+
+    public static void main(String[] args) {
+        String str1 = "-1235421415454545454545454544";
+        String str2 = "-1714546546546545454544548544544545";
+        //String str1 = "21";
+        //String str2 = "12";
+        String expectedResult = "02118187521397235888154583183918321221520083884298838480662480";
+
+        String actualResult = multiply(str1,str2);
+        if (actualResult.equals(expectedResult)) System.out.println("Matched");
+        System.out.println("actualResult="+ actualResult);
+
+    }
+}
